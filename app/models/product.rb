@@ -6,6 +6,10 @@ class Product < ApplicationRecord
 
   belongs_to :sub_category
 
+  %i[name].each do |e|
+    validates_presence_of e
+  end
+
   scoped_search on: %i[name slug]
   scope :order_by, ->(column, sort) { order(column => sort) }
   scope :randomize, -> { order('rand()') }
@@ -14,6 +18,8 @@ class Product < ApplicationRecord
   mount_uploader :photo_2, ProductPhotoUploader
   mount_uploader :photo_3, ProductPhotoUploader
   attr_accessor :image_data
+
+  before_save :set_slug
 
   def related
     Product.where('products.id <> ? and products.sub_category_id = ?', id, sub_category_id)
@@ -26,5 +32,9 @@ class Product < ApplicationRecord
 
   def set_image_by_params_image
     self.photo_1, self.photo_2, self.photo_3 = ConvertImage.new(image_data).convert unless image_data.nil?
+  end
+
+  def set_slug
+    self.slug = name.downcase.tr(' ', '-')
   end
 end
