@@ -6,7 +6,23 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-      resources :categories, only: %i[index show] do
+      resources :categories, only: %i[index] do
+        member do
+          get :products
+        end
+      end
+      resources :sub_categories, only: %i[] do
+        member do
+          get :products
+        end
+      end
+      resources :products, only: %i[show] do
+        collection do
+          get :search
+        end
+        member do
+          get :related
+        end
       end
     end
   end
